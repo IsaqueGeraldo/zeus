@@ -1,14 +1,18 @@
-package zeus
+package main
 
 import (
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 type Environment struct {
-	Key   string `json:"key,omitempty"`
-	Value string `json:"value,omitempty"`
+	ID        uint      `gorm:"primarykey" json:"id"`
+	Key       string    `json:"key"`
+	Value     string    `json:"value"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func Getenv(key string) (string, error) {
@@ -42,6 +46,20 @@ func Setenv(key string, value string) error {
 	return nil
 }
 
+func Unsetenv(key string) error {
+	if conn == nil {
+		return errors.New("database connection is not initialized")
+	}
+
+	env := Environment{Key: key}
+
+	if err := conn.Where("key = ?", key).Delete(&env).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func Environ() ([]Environment, error) {
 	if conn == nil {
 		return nil, errors.New("database connection is not initialized")
@@ -54,4 +72,14 @@ func Environ() ([]Environment, error) {
 	}
 
 	return env, nil
+}
+
+func Clearenv() error {
+	if conn == nil {
+		return errors.New("database connection is not initialized")
+	}
+
+	return conn.Migrator().DropTable(
+		Environment{},
+	)
 }

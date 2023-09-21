@@ -1,4 +1,4 @@
-package zeus
+package main
 
 import (
 	"github.com/IsaqueGeraldo/agni"
