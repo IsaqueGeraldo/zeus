@@ -1,84 +1,100 @@
 # Zeus
 
-Zeus is a Go package that provides database connectivity and functions for managing environment settings. It uses the Gorm library for database operations and is designed to simplify working with environment configurations.
+Zeus is a lightweight command-line tool for managing environment variables. It allows you to set, get, list, remove, or clear environment variables stored in a SQLite database. This tool is designed to simplify working with environment variables in your development environment.
+
+## Features
+
+- Set an environment variable with a key and value.
+- Get the value of an environment variable by specifying its key.
+- List all environment variables.
+- Remove an environment variable by specifying its key.
+- Clear all environment variables.
 
 ## Installation
 
-To use the Zeus package in your Go project, you can import it as follows:
+To install Zeus, you can use the `go get` command:
 
-```go
-import (
-    "github.com/IsaqueGeraldo/zeus"
-    "gorm.io/driver/sqlite"
-    "gorm.io/gorm"
-    "gorm.io/gorm/logger"
-)
+```bash
+go get github.com/IsaqueGeraldo/zeus
 ```
-
-You should also have the Gorm library and a SQLite database driver installed in your project.
 
 ## Usage
 
-### Initializing the Database Connection
+Zeus provides several subcommands to interact with environment variables:
 
-The `Bootstrap` function is used to initialize the database connection. It takes the path to the SQLite database file as an argument.
+### Set an Environment Variable
 
-```go
-db, err := zeus.Bootstrap("my_database.db")
-if err != nil {
-    // Handle the error
-}
+```bash
+zeus set [key] [value]
 ```
 
-### Managing Environment Settings
+Example:
 
-Zeus provides functions to get, set, and list environment settings.
-
-#### Get an Environment Setting
-
-To retrieve an environment setting by its key, use the `Getenv` function:
-
-```go
-value, err := zeus.Getenv("my_key")
-if err != nil {
-    // Handle the error
-}
+```bash
+zeus set API_KEY my-secret-key
 ```
 
-#### Set an Environment Setting
+### Get the Value of an Environment Variable
 
-To set an environment setting, use the `Setenv` function:
-
-```go
-err := zeus.Setenv("my_key", "my_value")
-if err != nil {
-    // Handle the error
-}
+```bash
+zeus get [key]
 ```
 
-#### List All Environment Settings
+Example:
 
-To retrieve a list of all environment settings, use the `Environ` function:
-
-```go
-envSettings, err := zeus.Environ()
-if err != nil {
-    // Handle the error
-}
+```bash
+zeus get API_KEY
 ```
 
-## Error Handling
+### List All Environment Variables
 
-Zeus functions return errors to handle various scenarios, such as database connection issues and record not found errors. Ensure that you handle errors appropriately in your code.
+```bash
+zeus environ
+```
 
-## Contributing
+### Remove an Environment Variable
 
-Contributions to the Zeus package are welcome! If you have ideas for improvements or new features, please open an issue or submit a pull request on the [GitHub repository](https://github.com/IsaqueGeraldo/zeus).
+```bash
+zeus unset [key]
+```
+
+Example:
+
+```bash
+zeus unset API_KEY
+```
+
+### Clear All Environment Variables
+
+```bash
+zeus clearenv
+```
+
+### Search for Environment Variables
+
+```bash
+zeus find [key]
+```
+
+Example:
+
+```bash
+zeus find API
+```
+
+## Database
+
+Zeus stores environment variables in a SQLite database named `zeus.db` in the current working directory. It will be created automatically if it doesn't exist.
+
+## Note
+
+- Environment variable keys are case-insensitive and will be converted to uppercase.
+- Only alphanumeric characters are allowed in keys; any other characters will be replaced with underscores.
 
 ## License
 
-Zeus is released under the MIT License. See the [LICENSE](LICENSE) file for details.
+Zeus is released under the MIT License. See [LICENSE](LICENSE) for more information.
 
-```
-Please make sure to replace any placeholder URLs or paths with the actual URLs and paths relevant to your project, such as the link to your GitHub repository and the license details.
-```
+---
+
+Feel free to contribute to this project or report any issues on [GitHub](https://github.com/IsaqueGeraldo/zeus).
