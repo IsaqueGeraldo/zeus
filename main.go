@@ -58,7 +58,23 @@ func main() {
 			if err != nil {
 				agni.Println("[zeus]: Error getting the value of the environment variable: "+err.Error(), agni.RedText)
 			} else {
-				fmt.Printf("Value of environment variable '%s': %s\n", key, value)
+				agni.Println("Value of environment variable '" + key + "': " + value)
+			}
+		},
+	}
+
+	var rename = &cobra.Command{
+		Use:   "rename [oldkey] [newkey]",
+		Short: "Rename an environment variable",
+		Args:  cobra.ExactArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			oldKey := args[0]
+			newKey := args[1]
+			err := RenameKey(oldKey, newKey)
+			if err != nil {
+				agni.Println("[zeus]: Error renaming the environment variable: "+err.Error(), agni.RedText)
+			} else {
+				agni.Println("[zeus]: Environment variable renamed successfully!")
 			}
 		},
 	}
@@ -116,17 +132,25 @@ func main() {
 		Use:   "clearenv",
 		Short: "Remove all environment variables",
 		Run: func(cmd *cobra.Command, args []string) {
-			err := Clearenv()
-			if err != nil {
-				agni.Println("[zeus]: Error clearing environment variables: "+err.Error(), agni.RedText)
+			fmt.Print("[zeus]: Are you sure you want to clear all environment variables? (yes/no): ")
+			var confirmation string
+			fmt.Scanln(&confirmation)
+
+			if confirmation == "yes" {
+				err := Clearenv()
+				if err != nil {
+					agni.Println("[zeus]: Error clearing environment variables: "+err.Error(), agni.RedText)
+				} else {
+					agni.Println("[zeus]: All environment variables have been removed successfully!", agni.GreenText)
+				}
 			} else {
-				agni.Println("[zeus]: All environment variables have been removed successfully!")
+				agni.Println("[zeus]: Operation canceled. Environment variables were not removed.", agni.YellowText)
 			}
 		},
 	}
 
 	rootCmd.AddCommand(
-		setEnv, getEnv, environ, unsetEnv, clearEnv, find,
+		setEnv, getEnv, environ, unsetEnv, clearEnv, find, rename,
 	)
 
 	if err := rootCmd.Execute(); err != nil {
@@ -153,6 +177,7 @@ func Getenv(key string) (string, error) {
 		return "", errors.New("the database connection is not initialized")
 	}
 
+	key = sanitizeKey(key)
 	var env Environment
 
 	if err := conn.Where("key = ?", key).First(&env).Error; err != nil {
@@ -170,9 +195,10 @@ func Find(key string) ([]Environment, error) {
 		return nil, errors.New("the database connection is not initialized")
 	}
 
+	key = sanitizeKey(key)
 	var env []Environment
 
-	if err := conn.Where("key <> ?", key).Find(&env).Error; err != nil {
+	if err := conn.Where("key LIKE ?", key).Find(&env).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("no records found matching the key")
 		}
@@ -187,10 +213,7 @@ func Setenv(key string, value string) error {
 		return errors.New("the database connection is not initialized")
 	}
 
-	regex := regexp.MustCompile("[^a-zA-Z]+")
-	cleaned := regex.ReplaceAllString(key, "_")
-	key = strings.ToUpper(cleaned)
-
+	key = sanitizeKey(key)
 	env := Environment{Key: key, Value: value}
 
 	if err := conn.Where("key = ?", key).Assign(env).FirstOrCreate(&env).Error; err != nil {
@@ -205,6 +228,7 @@ func Unsetenv(key string) error {
 		return errors.New("the database connection is not initialized")
 	}
 
+	key = sanitizeKey(key)
 	env := Environment{Key: key}
 
 	if err := conn.Where("key = ?", key).Delete(&env).Error; err != nil {
@@ -234,4 +258,48 @@ func Clearenv() error {
 	}
 
 	return conn.Exec("DELETE FROM environments").Error
+}
+
+func RenameKey(oldKey, newKey string) error {
+	if conn == nil {
+		return errors.New("the database connection is not initialized")
+	}
+
+	oldKey = sanitizeKey(oldKey)
+	newKey = sanitizeKey(newKey)
+
+	var env Environment
+	if err := conn.Where("key = ?", oldKey).First(&env).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("key not found")
+		}
+		return err
+	}
+
+	var existingEnv Environment
+	if err := conn.Where("key = ?", newKey).First(&existingEnv).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+	}
+
+	if existingEnv.ID != 0 {
+		return errors.New("new key already exists")
+	}
+
+	env.Key = newKey
+	if err := conn.Save(&env).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func sanitizeKey(key string) string {
+	regex := regexp.MustCompile("[^a-zA-Z0-9_]+")
+	cleaned := regex.ReplaceAllString(key, "_")
+
+	cleaned = strings.TrimSuffix(cleaned, "_")
+
+	return strings.ToUpper(cleaned)
 }

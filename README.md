@@ -6,6 +6,7 @@ Zeus is a lightweight command-line tool for managing environment variables. It a
 
 - Set an environment variable with a key and value.
 - Get the value of an environment variable by specifying its key.
+- Rename an environment variable.
 - List all environment variables.
 - Remove an environment variable by specifying its key.
 - Clear all environment variables.
@@ -44,6 +45,18 @@ Example:
 
 ```bash
 zeus get API_KEY
+```
+
+### Rename an Environment Variable
+
+```bash
+zeus rename [oldkey] [newkey]
+```
+
+Example:
+
+```bash
+zeus rename OLD_KEY NEW_KEY
 ```
 
 ### List All Environment Variables
