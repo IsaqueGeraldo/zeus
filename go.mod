@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/IsaqueGeraldo/agni v0.0.0-20230915033103-0145dc201d44
-	github.com/IsaqueGeraldo/odin v0.0.0-20231002155504-f2299a9def45
+	github.com/IsaqueGeraldo/odin v0.0.0-20231002203017-e29095baeda4
 	github.com/spf13/cobra v1.7.0
 )
 
