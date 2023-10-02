@@ -16,7 +16,7 @@ Zeus is a lightweight command-line tool for managing environment variables. It a
 To install Zeus, you can use the `go get` command:
 
 ```bash
-go get github.com/IsaqueGeraldo/zeus
+go install github.com/IsaqueGeraldo/zeus@latest
 ```
 
 ## Usage
