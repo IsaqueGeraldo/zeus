@@ -97,7 +97,7 @@ zeus find API
 
 ## Database
 
-Zeus stores environment variables in a SQLite database named `zeus.db` in the current working directory. It will be created automatically if it doesn't exist.
+Zeus stores environment variables in a SQLite database named `odin.db` in the current working directory. It will be created automatically if it doesn't exist.
 
 ## Note
 

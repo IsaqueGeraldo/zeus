@@ -1,5 +1,7 @@
 github.com/IsaqueGeraldo/agni v0.0.0-20230915033103-0145dc201d44 h1:DsELccOBCOp7pf9l8fWRieUAZQVewVliFIn/+0J8qjU=
 github.com/IsaqueGeraldo/agni v0.0.0-20230915033103-0145dc201d44/go.mod h1:oEdB54ti+m6xRYjfzszfuvMquycguE0yOxvTxyhzrF8=
+github.com/IsaqueGeraldo/odin v0.0.0-20231002155504-f2299a9def45 h1:SuhrppbESjIRPlqc9KPcgXP3smdjuQ14cibV9C6uacI=
+github.com/IsaqueGeraldo/odin v0.0.0-20231002155504-f2299a9def45/go.mod h1:9+H/jo28p8g9CJMdQhCb9cBUyfwU6A7I6TZY6IqCg9I=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
