@@ -37,12 +37,18 @@ func Bootstrap() {
 
 // normalizeKey ensures the key is in UPPER_SNAKE_CASE format
 func normalizeKey(key string) string {
-	// Remove non-alphabetic characters except spaces
-	reg := regexp.MustCompile(`[^A-Za-z\s]+`)
+	// Remove non-alphabetic characters except underscores and spaces
+	reg := regexp.MustCompile(`[^A-Za-z_]+`)
 	key = reg.ReplaceAllString(key, "")
+
+	// Replace multiple underscores or spaces with a single underscore
+	key = regexp.MustCompile(`_{2,}| {2,}`).ReplaceAllString(key, "_")
 
 	// Replace spaces with underscores
 	key = strings.ReplaceAll(key, " ", "_")
+
+	// Trim leading and trailing underscores
+	key = strings.Trim(key, "_")
 
 	// Convert to uppercase
 	return strings.ToUpper(key)
