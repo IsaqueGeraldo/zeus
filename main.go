@@ -24,7 +24,7 @@ func Bootstrap() {
 		return
 	}
 
-	if err := db.AutoMigrate(Environment{}); err != nil {
+	if err := db.AutoMigrate(&Environment{}); err != nil {
 		fmt.Printf("[zeus]: %v \n", err) // Displays error if the connection fails
 		return
 	}
