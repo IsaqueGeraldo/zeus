@@ -17,7 +17,7 @@ type Environment struct {
 }
 
 func Bootstrap() {
-	dsn := "file:mydatabase.db?_key=" + os.Getenv("ZEUS_PASSWORD")
+	dsn := "file:zeus.db?_key=" + os.Getenv("ZEUS_PASSWORD")
 	var err error
 
 	conn, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
