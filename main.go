@@ -1,94 +1,101 @@
 package zeus
 
 import (
-	"fmt"
-	"regexp"
+	"fmt"    // For formatting and printing functions
+	"regexp" // For regular expressions
 
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"gorm.io/driver/sqlite" // SQLite driver for GORM
+	"gorm.io/gorm"          // GORM ORM
 )
 
-var conn *gorm.DB
+var conn *gorm.DB // Global variable to hold the database connection
 
+// Environment represents an environment variable with a key and value
 type Environment struct {
-	Key   string `json:"key" gorm:"primaryKey"`
-	Value string `json:"value"`
+	Key   string `json:"key" gorm:"primaryKey"` // Unique key for the variable
+	Value string `json:"value"`                 // Value associated with the key
 }
 
+// Bootstrap initializes the connection to the SQLite database
 func Bootstrap() {
-	db, err := gorm.Open(sqlite.Open("zeus.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("zeus.db"), &gorm.Config{}) // Opens the connection to the database
 	if err != nil {
-		fmt.Printf("[zeus]: %v \n", err)
+		fmt.Printf("[zeus]: %v \n", err) // Displays error if the connection fails
 		return
 	}
 
-	conn = db
+	conn = db // Assigns the connection to the global variable
 
-	fmt.Println("[zeus]: database connection established")
+	fmt.Println("[zeus]: database connection established") // Success message
 }
 
+// validateKey checks if the key is in UPPER_SNAKE_CASE format
 func validateKey(key string) error {
-	re := regexp.MustCompile(`^[A-Z_]+$`)
-	if !re.MatchString(key) {
-		return fmt.Errorf("key '%s' is not in UPPER_SNAKE_CASE format", key)
+	re := regexp.MustCompile(`^[A-Z_]+$`) // Regular expression to validate the format
+	if !re.MatchString(key) {             // Checks if the key matches the format
+		return fmt.Errorf("key '%s' is not in UPPER_SNAKE_CASE format", key) // Returns error if not valid
 	}
-	return nil
+	return nil // Returns nil if valid
 }
 
+// Getenv retrieves the environment variable for the given key
 func Getenv(key string) (Environment, error) {
-	var env Environment
+	var env Environment // Variable to hold the retrieved environment
 
-	result := conn.First(&env, "key = ?", key)
+	result := conn.First(&env, "key = ?", key) // Finds the first record matching the key
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
-			return Environment{}, fmt.Errorf("key '%s' not found", key)
+			return Environment{}, fmt.Errorf("key '%s' not found", key) // Returns error if key not found
 		}
-		return Environment{}, result.Error
+		return Environment{}, result.Error // Returns any other error encountered
 	}
 
-	return env, nil
+	return env, nil // Returns the retrieved environment variable
 }
 
+// Setenv sets a new environment variable with the given key and value
 func Setenv(key, value string) error {
-	if err := validateKey(key); err != nil {
-		return err
+	if err := validateKey(key); err != nil { // Validates the key format
+		return err // Returns error if key is not valid
 	}
 
 	var existing Environment
 	if result := conn.First(&existing, "key = ?", key); result.Error == nil {
-		return fmt.Errorf("key '%s' already exists", key)
+		return fmt.Errorf("key '%s' already exists", key) // Returns error if key already exists
 	}
 
-	env := Environment{Key: key, Value: value}
+	env := Environment{Key: key, Value: value} // Creates a new environment variable
 
-	result := conn.Save(&env)
+	result := conn.Save(&env) // Saves the environment variable to the database
 	if result.Error != nil {
-		return fmt.Errorf("error saving variable: %v", result.Error)
+		return fmt.Errorf("error saving variable: %v", result.Error) // Returns error if save fails
 	}
 
-	return nil
+	return nil // Returns nil if successful
 }
 
+// Clearenv removes the environment variable for the given key
 func Clearenv(key string) error {
-	result := conn.Delete(&Environment{}, "key = ?", key)
+	result := conn.Delete(&Environment{}, "key = ?", key) // Deletes the environment variable from the database
 	if result.Error != nil {
-		return fmt.Errorf("error removing variable: %v", result.Error)
+		return fmt.Errorf("error removing variable: %v", result.Error) // Returns error if deletion fails
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("key '%s' not found", key)
+		return fmt.Errorf("key '%s' not found", key) // Returns error if no rows were affected (key not found)
 	}
 
-	return nil
+	return nil // Returns nil if successful
 }
 
+// Environ lists all environment variables
 func Environ() ([]Environment, error) {
-	var envs []Environment
+	var envs []Environment // Slice to hold all environment variables
 
-	result := conn.Find(&envs)
+	result := conn.Find(&envs) // Finds all environment variables in the database
 	if result.Error != nil {
-		return nil, fmt.Errorf("error when listing environment: %v", result.Error)
+		return nil, fmt.Errorf("error when listing environment: %v", result.Error) // Returns error if listing fails
 	}
 
-	return envs, nil
+	return envs, nil // Returns the list of environment variables
 }
