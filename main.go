@@ -3,6 +3,7 @@ package zeus
 import (
 	"fmt"    // For formatting and printing functions
 	"regexp" // For regular expressions
+	"strings"
 
 	"gorm.io/driver/sqlite" // SQLite driver for GORM
 	"gorm.io/gorm"          // GORM ORM
@@ -25,7 +26,7 @@ func Bootstrap() {
 	}
 
 	if err := db.AutoMigrate(&Environment{}); err != nil {
-		fmt.Printf("[zeus]: %v \n", err) // Displays error if the connection fails
+		fmt.Printf("[zeus]: %v \n", err) // Displays error if migration fails
 		return
 	}
 
@@ -34,18 +35,23 @@ func Bootstrap() {
 	fmt.Println("[zeus]: database connection established") // Success message
 }
 
-// validateKey checks if the key is in UPPER_SNAKE_CASE format
-func validateKey(key string) error {
-	re := regexp.MustCompile(`^[A-Z_]+$`) // Regular expression to validate the format
-	if !re.MatchString(key) {             // Checks if the key matches the format
-		return fmt.Errorf("key '%s' is not in UPPER_SNAKE_CASE format", key) // Returns error if not valid
-	}
-	return nil // Returns nil if valid
+// normalizeKey ensures the key is in UPPER_SNAKE_CASE format
+func normalizeKey(key string) string {
+	// Remove non-alphabetic characters except spaces
+	reg := regexp.MustCompile(`[^A-Za-z\s]+`)
+	key = reg.ReplaceAllString(key, "")
+
+	// Replace spaces with underscores
+	key = strings.ReplaceAll(key, " ", "_")
+
+	// Convert to uppercase
+	return strings.ToUpper(key)
 }
 
 // Getenv retrieves the environment variable for the given key
 func Getenv(key string) (Environment, error) {
-	var env Environment // Variable to hold the retrieved environment
+	key = normalizeKey(key) // Normalize the key
+	var env Environment     // Variable to hold the retrieved environment
 
 	result := conn.First(&env, "key = ?", key) // Finds the first record matching the key
 	if result.Error != nil {
@@ -60,9 +66,7 @@ func Getenv(key string) (Environment, error) {
 
 // Setenv sets a new environment variable with the given key and value
 func Setenv(key, value string) error {
-	if err := validateKey(key); err != nil { // Validates the key format
-		return err // Returns error if key is not valid
-	}
+	key = normalizeKey(key) // Normalize the key
 
 	var existing Environment
 	if result := conn.First(&existing, "key = ?", key); result.Error == nil {
@@ -81,6 +85,8 @@ func Setenv(key, value string) error {
 
 // Clearenv removes the environment variable for the given key
 func Clearenv(key string) error {
+	key = normalizeKey(key) // Normalize the key
+
 	result := conn.Delete(&Environment{}, "key = ?", key) // Deletes the environment variable from the database
 	if result.Error != nil {
 		return fmt.Errorf("error removing variable: %v", result.Error) // Returns error if deletion fails
