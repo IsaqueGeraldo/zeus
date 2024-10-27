@@ -94,16 +94,3 @@ func Environ() ([]Environment, error) {
 
 	return envs, nil
 }
-
-func UpdatePassword(newKey string) error {
-	sqlDB, err := conn.DB()
-	if err != nil {
-		return fmt.Errorf("error getting db: %v", err)
-	}
-	sqlDB.Close()
-
-	os.Setenv("ZEUS_PASSWORD", newKey)
-
-	Bootstrap()
-	return nil
-}
