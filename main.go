@@ -2,7 +2,6 @@ package zeus
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 
 	"gorm.io/driver/sqlite"
@@ -17,14 +16,13 @@ type Environment struct {
 }
 
 func Bootstrap() {
-	dsn := "file:zeus.db?_key=" + os.Getenv("ZEUS_PASSWORD")
-	var err error
-
-	conn, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("zeus.db"), &gorm.Config{})
 	if err != nil {
 		fmt.Printf("[zeus]: %v \n", err)
 		return
 	}
+
+	conn = db
 
 	fmt.Println("[zeus]: database connection established")
 }
