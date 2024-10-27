@@ -24,6 +24,11 @@ func Bootstrap() {
 		return
 	}
 
+	if err := db.AutoMigrate(Environment{}); err != nil {
+		fmt.Printf("[zeus]: %v \n", err) // Displays error if the connection fails
+		return
+	}
+
 	conn = db // Assigns the connection to the global variable
 
 	fmt.Println("[zeus]: database connection established") // Success message
