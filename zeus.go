@@ -136,7 +136,7 @@ func sanitizeKey(key string) string {
 	}
 
 	re := regexp.MustCompile("[^a-zA-Z0-9]+")
-	sanitized := re.ReplaceAllString(result, "_")
+	sanitized := re.ReplaceAllString(strings.TrimSpace(result), "_")
 
 	return strings.ToUpper(sanitized)
 }
