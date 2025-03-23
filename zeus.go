@@ -18,6 +18,7 @@ var source string
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&source, "source", "s", "", "📂 Path to the environment file")
+	exportCmd.Flags().StringP("output", "o", ".env", "Specify the output file name")
 }
 
 var rootCmd = &cobra.Command{
@@ -103,24 +104,39 @@ var listCmd = &cobra.Command{
 	},
 }
 
-var helpCmd = &cobra.Command{
-	Use:   "help",
-	Short: "📖 Show help for commands",
+var exportCmd = &cobra.Command{
+	Use:   "export",
+	Short: "📦 Export all environment variables file",
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
-	},
-}
+		envs := odin.Environ()
 
-var completionCmd = &cobra.Command{
-	Use:   "completion",
-	Short: "⌨️ Generate shell completion script",
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Root().GenBashCompletion(os.Stdout)
+		outputFile, _ := cmd.Flags().GetString("output")
+		if outputFile == "" {
+			outputFile = ".env"
+		}
+
+		file, err := os.Create(outputFile)
+		if err != nil {
+			fmt.Printf("❌ Error creating file: %v\n", err)
+			return
+		}
+		defer file.Close()
+
+		for _, env := range envs {
+			_, err := file.WriteString(env + "\n")
+			if err != nil {
+				fmt.Printf("❌ Error writing to file: %v\n", err)
+				return
+			}
+		}
+
+		// Feedback ao usuário
+		fmt.Printf("✅ All environment variables have been exported to '%s'\n", outputFile)
 	},
 }
 
 func main() {
-	rootCmd.AddCommand(setCmd, getCmd, unsetCmd, clearCmd, listCmd, helpCmd, completionCmd)
+	rootCmd.AddCommand(setCmd, getCmd, unsetCmd, clearCmd, listCmd, exportCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

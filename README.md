@@ -1,6 +1,6 @@
 # Zeus - Environment Variable Manager ⚡
 
-Zeus is an environment variable manager that uses a database to store them persistently. With it, you can define, retrieve, remove, and list environment variables in a simple and efficient way.
+Zeus is an environment variable manager that uses a database to store them persistently. With Zeus, you can define, retrieve, remove, list, and export environment variables efficiently, making it an essential tool for managing your app's environment configuration.
 
 ## Features 🛠️
 
@@ -9,29 +9,44 @@ Zeus is an environment variable manager that uses a database to store them persi
 - **Unset**: Remove an environment variable.
 - **Clear**: Remove all environment variables.
 - **List**: List all environment variables.
+- **Export**: Export all environment variables to a file.
 
 ## Installation 🔧
 
-Clone the repository to your machine:
+To install Zeus, you can use the following methods:
+
+### Option 1: Using `go install` (recommended)
 
 ```bash
-git clone https://github.com/your-username/zeus.git
-cd zeus
+go install github.com/IsaqueGeraldo/zeus@latest
 ```
 
-Install the Go dependencies:
+This will download, compile, and install the `zeus` binary directly to your `$GOPATH/bin` directory.
 
-```bash
-go mod tidy
-```
+### Option 2: Manual Installation
 
-Compile the project:
+If you prefer to clone and compile the project manually, follow these steps:
 
-```bash
-go build -o zeus
-```
+1. Clone the repository to your machine:
 
-Or, if you want to just download and compile it:
+   ```bash
+   git clone https://github.com/IsaqueGeraldo/zeus.git
+   cd zeus
+   ```
+
+2. Install the Go dependencies:
+
+   ```bash
+   go mod tidy
+   ```
+
+3. Compile the project:
+
+   ```bash
+   go build -o zeus
+   ```
+
+Alternatively, you can directly run the following to download and compile:
 
 ```bash
 go install
@@ -39,7 +54,7 @@ go install
 
 ## Usage 🚀
 
-After compiling the program, you can use `zeus` directly from the terminal.
+Once you've installed `zeus`, you can use it via the terminal with the `zeus` command.
 
 ### Example Commands:
 
@@ -73,19 +88,26 @@ zeus clear
 zeus list
 ```
 
-## Flags 📌
-
-- `-s`, `--source`: Specifies the path to the environment file.
-
-## Example usage with the `source` flag:
+#### 6. Export all environment variables to a file:
 
 ```bash
-zeus -s /path/to/file set MY_VARIABLE value
+zeus export -o .env
+```
+
+## Flags 📌
+
+- `-s`, `--source`: Specifies the path to the environment file (if not provided, it defaults to the `ZEUS_SOURCE_DIR` environment variable).
+- `-o`, `--output`: Specifies the output file for the export command (default is `.env`).
+
+### Example usage with the `source` and `output` flags:
+
+```bash
+zeus -s /path/to/env/file export -o /path/to/output/file.env
 ```
 
 ## How It Works 🧠
 
-Zeus uses the [odin](https://github.com/IsaqueGeraldo/odin) package to manage the environment variables. The environment file can be passed via the `--source` flag, which specifies the path to the file. If the flag is not provided, the program uses the default `./odin.db` directory.
+Zeus uses the [odin](https://github.com/IsaqueGeraldo/odin) package to manage environment variables. The environment file can be passed via the `--source` flag, which specifies the path to the file. If the flag is not provided, the program will use the default environment file defined by the `ZEUS_SOURCE_DIR` environment variable.
 
 ## License 📄
 
